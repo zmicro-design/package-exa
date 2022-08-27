@@ -1,0 +1,46 @@
+#!/bin/bash
+
+set -e
+
+VERSION=v0.10.1
+
+help() {
+  echo "Usage:"
+  echo "  zmicro package install nps <args...>"
+  echo ""
+}
+
+install() {
+  local os="linux"
+  local arch="x86_64"
+  local bin_path=/usr/bin
+
+  if [ "$(os::is_macos)" = "true" ]; then
+    os="macos"
+    bin_path=/usr/local/bin
+  fi
+
+  local tmp_file=/tmp/exa.zip
+  local url="https://github.com/ogham/exa/releases/download/${VERSION}/exa-${os}-${arch}-${VERSION}.zip"
+  curl -fSL $url -o $tmp_file
+  cd /tmp
+  tar -zxvf $tmp_file >>/dev/null 2>&1
+  sudo mv bin/exa $bin_path
+  rm -rf $tmp_file
+}
+
+core() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  install
+  log::success "install frp success."
+}
+
+run() {
+  core $@
+}
+
+run $@
